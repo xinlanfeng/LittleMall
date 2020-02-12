@@ -7,7 +7,7 @@
       <!-- slides -->
       <swiper-slide v-for="item in banners" :key="item.acm">
         <a :href="item.link">
-          <img :src="item.image" class="swiper-img" />
+          <img :src="item.image" class="swiper-img" @load="imageLoad" />
         </a>
       </swiper-slide>
       <!-- Optional controls -->
@@ -23,7 +23,7 @@ export default {
     banners: {
       type: Array,
       default() {
-        return [];
+        return []
       }
     }
   },
@@ -44,15 +44,26 @@ export default {
         // autoplay: {
         //   delay: 1000,//1秒切换一次
         // }
-      }
-    };
+      },
+      isLoad: false
+    }
   },
   computed: {
     showSwiper() {
-      return this.banners.length;
+      return this.banners.length
+    }
+  },
+  methods: {
+    //图片加载完成后，方便tabControl获取offsetTop的值
+    imageLoad() {
+      // 只需执行一次就够了
+      if (!this.isLoad) {
+        this.$emit("swiperImageLoad")
+        this.isLoad = true
+      }
     }
   }
-};
+}
 </script>
 
 <style lang="stylus" scoped>

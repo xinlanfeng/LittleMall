@@ -1,20 +1,20 @@
 <template>
-  <div class="wrapper" ref="wrapper">
-    <div class="content">
+  <div ref="wrapper">
+    <div>
       <slot></slot>
     </div>
   </div>
 </template>
 
 <script>
-import BScroll from "better-scroll";
+import BScroll from "better-scroll"
 
 export default {
   name: "Scroll",
   props: {
     probeType: {
       type: Number,
-      default: 0
+      default: 1
     },
     pullUpload: {
       type: Boolean,
@@ -24,7 +24,7 @@ export default {
   data() {
     return {
       scroll: null
-    };
+    }
   },
   mounted() {
     this.scroll = new BScroll(this.$refs.wrapper, {
@@ -36,29 +36,40 @@ export default {
 
       //需要设置click为true,这样给除了button之外的DOM设置click事件时才会起作用
       click: true
-    });
+    })
 
     //监听滚动的位置
     //this.scroll.on的“scroll”是betterScroll内置的事件
-    this.scroll.on("scroll", position => {
-      this.$emit("scroll", position);
-    });
+    if (this.probeType === 2 || this.probeType === 3) {
+      this.scroll.on("scroll", position => {
+        this.$emit("scroll", position)
+      })
+    }
 
     //监听上拉加载事件
-    this.scroll.on("pullingUp", () => {
-      //上拉加载更多
-      this.$emit("pullingUp");
-    });
+    if (this.pullUpload) {
+      this.scroll.on("pullingUp", () => {
+        //上拉加载更多
+        this.$emit("pullingUp")
+      })
+    }
   },
   methods: {
     scrollTo(x, y, time = 500) {
-      this.scroll.scrollTo(x, y, time);
+      this.scroll && this.scroll.scrollTo(x, y, time)
     },
     finishPullUp() {
-      this.scroll.finishPullUp();
+      this.scroll && this.scroll.finishPullUp()
+    },
+    refresh() {
+      //解决bug: 图片很快加载完成后回调scroll的refresh方法，但此时Scroll.vue还未被挂载，mounted还未被执行的问题
+      this.scroll && this.scroll.refresh()
+    },
+    getScrollY() {
+      return this.scroll ? this.scroll.y : 0
     }
   }
-};
+}
 </script>
 
 <style scoped></style>
