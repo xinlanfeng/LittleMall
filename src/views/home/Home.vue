@@ -39,11 +39,11 @@ import NavBar from "components/common/navbar/NavBar"
 import TabControl from "components/content/tabControl/TabControl"
 import GoodsList from "components/content/goods/GoodsList"
 import Scroll from "components/common/scroll/Scroll"
-import BackTop from "components/content/backTop/BackTop"
 
 import { getHomeMultidata, getHomeGoods } from "network/home"
 
 import { debounce } from "common/utils"
+import { itemImageListenerMinin, backTopMixin } from "common/mixin"
 
 export default {
   name: "Home",
@@ -69,7 +69,6 @@ export default {
       },
       saveY: 0,
       currentType: "pop",
-      isBackTopShow: false,
       tabOffsetTop: 0,
       isTabFixedShow: false
     }
@@ -86,9 +85,10 @@ export default {
     NavBar,
     TabControl,
     GoodsList,
-    Scroll,
-    BackTop
+    Scroll
   },
+  //混入
+  mixins: [itemImageListenerMinin, backTopMixin],
   created() {
     //请求轮播图和列表数据
     this.getHomeMultidata()
@@ -100,22 +100,15 @@ export default {
 
     // 注意：不要在组件创建created后，去用this.$refs或者document.querySelector()获取DOM或者某个组件，拿不到,在mounted挂载后获取
   },
-  mounted() {
-    //监听GoodsListItem.vue中图片是否加载完成
-    //防抖
-    const refresh = debounce(this.$refs.HomeScroll.refresh, 200)
-    this.$bus.$on("itemImageLoad", () => {
-      // 刷新太频繁，需要防抖
-      // this.$refs.HomeScroll.refresh()
-      refresh()
-    })
-  },
   activated() {
     this.$refs.HomeScroll.scrollTo(0, this.saveY, 0)
     this.$refs.HomeScroll.refresh()
   },
   deactivated() {
     this.saveY = this.$refs.HomeScroll.getScrollY()
+
+    //离开Home页面时，取消Home页面的全局事件监听
+    this.$bus.$off("itemImageLoad", this.itemImageListener)
   },
   methods: {
     // 网络请求相关方法
@@ -155,11 +148,11 @@ export default {
 
       this.$refs.tabControl.currentIndex = index
       this.$refs.tabControl2.currentIndex = index
-    },
-    //回到顶部
-    backTopClick() {
-      //获取并调用Scroll.vue组件的scrollTo方法
-      this.$refs.HomeScroll.scrollTo(0, 0, 300)
+
+      //点击一个新的tab时，滚动到开头
+      if (-this.$refs.HomeScroll.getScrollY() > this.tabOffsetTop) {
+        this.$refs.HomeScroll.scrollTo(0, -this.tabOffsetTop, 0)
+      }
     },
     //监听滚动
     contentScroll(position) {

@@ -1,19 +1,19 @@
 <template>
-  <div class="goods-item">
+  <div class="goods-item" @click="goodsItemClick">
     <!-- 
       解决bug：图片还未加载完全而Better-Scroll的可滚动区域高度就已经计算完毕，导致后面部分不能滚动的问题
 
       this.scroll.refresh(); //BScroll重新计算可滚动高度 
       监听每一张图片是否加载完毕，加载完毕就refresh一次 (非父子组件)  ==>  使用VueX / 使用事件总线bus / 一层一层传递
     -->
-    <img :src="goodsItem.show.img" @load="imageLoad" />
+    <img v-lazy="showImage" @load="imageLoad" />
     <div class="goods-info">
       <!-- 标题 -->
-      <p>{{goodsItem.title}}</p>
+      <p>{{ goodsItem.title }}</p>
       <!-- 价格 -->
-      <span class="price">￥{{goodsItem.price}}</span>
+      <span class="price">￥{{ goodsItem.price }}</span>
       <!-- 总收藏数 -->
-      <span class="collect">{{goodsItem.cfav}}</span>
+      <span class="collect">{{ goodsItem.cfav }}</span>
     </div>
   </div>
 </template>
@@ -25,16 +25,25 @@ export default {
     goodsItem: {
       type: Object,
       default() {
-        return {}
+        return {};
       }
+    }
+  },
+  computed: {
+    showImage() {
+      return this.goodsItem.image || this.goodsItem.show.img;
     }
   },
   methods: {
     imageLoad() {
-      this.$bus.$emit("itemImageLoad")
+      this.$bus.$emit("itemImageLoad");
+    },
+    goodsItemClick() {
+      // 跳转到详情页
+      this.$router.push("/detail/" + this.goodsItem.iid);
     }
   }
-}
+};
 </script>
 
 <style scoped>

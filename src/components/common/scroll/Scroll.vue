@@ -28,14 +28,14 @@ export default {
   },
   mounted() {
     this.scroll = new BScroll(this.$refs.wrapper, {
+      //需要设置click为true,这样给除了button之外的DOM设置click事件时才会起作用
+      click: true,
+
       // 不要写死，根据需求来
       // probeType: 3,
       // pullUpload: true,
       probeType: this.probeType,
-      pullUpload: this.pullUpload,
-
-      //需要设置click为true,这样给除了button之外的DOM设置click事件时才会起作用
-      click: true
+      pullUpload: this.pullUpload
     })
 
     //监听滚动的位置

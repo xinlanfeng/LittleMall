@@ -11,7 +11,9 @@
         </a>
       </swiper-slide>
       <!-- Optional controls -->
-      <div class="swiper-pagination" slot="pagination"></div>
+      <template v-slot:pagination>
+        <div class="swiper-pagination"></div>
+      </template>
     </swiper>
   </div>
 </template>
